@@ -10,6 +10,7 @@ import 'package:factbook_info/detail_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -23,25 +24,28 @@ class _MyHomePageState extends State<MyHomePage> {
   dynamic data;
   List<CountryCodes> countryCodeData = [];
   var searchQuery = '';
+  var connection = false;
 
   Future<List> getJson() async {
     var jsonData = await rootBundle.loadString('assets/country_list.json');
     var convert = json.decode(jsonData);
     countryList = convert;
 
-    var newresponse = await http.get(
-        // Encode Url to JSON
-        Uri.parse(
-            'https://www.cia.gov/the-world-factbook/page-data/references/country-data-codes/page-data.json'),
-        // accept JSON
-        headers: {"Accept": "application/json"});
-    var newconvert = await json.decode(newresponse.body);
-    var newjson =
-        await json.decode(newconvert['result']['data']['page']['json']);
-    countryCodeData = [];
-    await newjson['country_codes'].forEach((e) {
-      countryCodeData.add(CountryCodes.fromJson(e)); // adding json to list
-    });
+    if (connection == true) {
+      var newresponse = await http.get(
+          // Encode Url to JSON
+          Uri.parse(
+              'https://www.cia.gov/the-world-factbook/page-data/references/country-data-codes/page-data.json'),
+          // accept JSON
+          headers: {"Accept": "application/json"});
+      var newconvert = await json.decode(newresponse.body);
+      var newjson =
+          await json.decode(newconvert['result']['data']['page']['json']);
+      countryCodeData = [];
+      await newjson['country_codes'].forEach((e) {
+        countryCodeData.add(CountryCodes.fromJson(e)); // adding json to list
+      });
+    }
     // print(countryCodeData);
     return countryCodeData;
   }
@@ -88,6 +92,37 @@ class _MyHomePageState extends State<MyHomePage> {
     'Spratly Islands',
     'Wake Island',
   ];
+  @override
+  void initState() {
+    super.initState();
+    checkConnection();
+  }
+
+  Future<bool> checkConnection() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.wifi) {
+      setState(() {
+        connection = true;
+      });
+      print('Connected to a Wi-Fi network');
+    } else if (connectivityResult == ConnectivityResult.mobile) {
+      setState(() {
+        connection = true;
+      });
+      print('Connected to a mobile network');
+    } else {
+      setState(() {
+        connection = false;
+      });
+      print('Not connected to any network');
+    }
+    return connection;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,63 +132,69 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Stack(
           children: [
             buildFloatingSearchBar(),
-            Container(
-              margin: const EdgeInsets.only(top: 60),
-              child: FutureBuilder<List>(
-                future: getJson(),
-                builder: (context, snapshot) {
-                  // print(countryCodeData.length);
-                  if (!snapshot.hasData) {
-                    return const Center(
-                        child: CircularProgressIndicator(
-                      color: Colors.black,
-                    ));
-                  } else if (snapshot.hasError) {
-                    return const Text('Error...');
-                  } else {
-                    return SafeArea(
-                      child: ListView.builder(
-                        itemCount: countryCodeData.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          if (shouldNotBeOnTheList
-                              .contains(countryCodeData[index].entity)) {
-                            return const SizedBox();
-                          } else {
-                            if (searchQuery != '') {
-                              searchQuery = searchQuery.toLowerCase();
-                              if (countryCodeData[index]
-                                  .entity!
-                                  .toLowerCase()
-                                  .contains(searchQuery)) {
-                                return listTile(
-                                  countryCodeData[index].entity,
-                                  countryCodeData[index].isoCode1 == null
-                                      ? ''
-                                      : countryCodeData[index]
-                                          .isoCode1!
-                                          .toLowerCase(),
-                                );
-                              } else {
-                                return const SizedBox();
-                              }
-                            } else {
-                              return listTile(
-                                countryCodeData[index].entity,
-                                countryCodeData[index].isoCode1 == null
-                                    ? ''
-                                    : countryCodeData[index]
-                                        .isoCode1!
-                                        .toLowerCase(),
-                              );
-                            }
-                          }
-                        },
-                      ),
-                    );
-                  }
-                },
-              ),
-            ),
+            connection == false
+                ? const Center(
+                    child: Text('No internet connection',
+                        style:
+                            TextStyle(fontSize: 20, fontFamily: 'Montserrat')),
+                  )
+                : Container(
+                    margin: const EdgeInsets.only(top: 60),
+                    child: FutureBuilder<List>(
+                      future: getJson(),
+                      builder: (context, snapshot) {
+                        // print(countryCodeData.length);
+                        if (!snapshot.hasData) {
+                          return const Center(
+                              child: CircularProgressIndicator(
+                            color: Colors.black,
+                          ));
+                        } else if (snapshot.hasError) {
+                          return const Text('Error...');
+                        } else {
+                          return SafeArea(
+                            child: ListView.builder(
+                              itemCount: countryCodeData.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                if (shouldNotBeOnTheList
+                                    .contains(countryCodeData[index].entity)) {
+                                  return const SizedBox();
+                                } else {
+                                  if (searchQuery != '') {
+                                    searchQuery = searchQuery.toLowerCase();
+                                    if (countryCodeData[index]
+                                        .entity!
+                                        .toLowerCase()
+                                        .contains(searchQuery)) {
+                                      return listTile(
+                                        countryCodeData[index].entity,
+                                        countryCodeData[index].isoCode1 == null
+                                            ? ''
+                                            : countryCodeData[index]
+                                                .isoCode1!
+                                                .toLowerCase(),
+                                      );
+                                    } else {
+                                      return const SizedBox();
+                                    }
+                                  } else {
+                                    return listTile(
+                                      countryCodeData[index].entity,
+                                      countryCodeData[index].isoCode1 == null
+                                          ? ''
+                                          : countryCodeData[index]
+                                              .isoCode1!
+                                              .toLowerCase(),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
           ],
         ),
       ),

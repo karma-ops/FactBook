@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.factbook_info">
+    package="com.yuvghimire.factbook">
    <application
-        android:label="factbook_info"
+        android:label="Factbook"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

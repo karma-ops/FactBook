@@ -1,4 +1,4 @@
-package com.example.factbook_info
+package com.yuvghimire.factbook
 
 import io.flutter.embedding.android.FlutterActivity
 
