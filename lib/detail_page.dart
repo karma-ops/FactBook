@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:factbook_info/increment_provider.dart';
-import 'package:factbook_info/providerTest.dart';
-import 'package:factbook_info/timer_info.dart';
+// import 'package:factbook_info/increment_provider.dart';
+// import 'package:factbook_info/providerTest.dart';
+// import 'package:factbook_info/timer_info.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
 class Detail extends StatefulWidget {
   const Detail({Key? key, required this.name, required this.code})
@@ -60,26 +60,26 @@ class _DetailState extends State<Detail> {
         title:
             Text(widget.name, style: const TextStyle(fontFamily: 'Montserrat')),
         backgroundColor: Colors.black87,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider(create: (context) => TimerInfo()),
-                      ChangeNotifierProvider(
-                          create: (context) => IncrementProvider())
-                    ],
-                    child: const Test(),
-                  ),
-                ),
-              );
-            },
-          )
-        ],
+        // actions: [
+        // IconButton(
+        //   icon: const Icon(Icons.info),
+        //   onPressed: () {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //         builder: (context) => MultiProvider(
+        //           providers: [
+        //             ChangeNotifierProvider(create: (context) => TimerInfo()),
+        //             ChangeNotifierProvider(
+        //                 create: (context) => IncrementProvider())
+        //           ],
+        //           child: const Test(),
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // )
+        // ],
       ),
       body: ListView(
         children: [

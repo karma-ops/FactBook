@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 import 'package:factbook_info/increment_provider.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +32,7 @@ class _TestState extends State<Test> {
 
   @override
   Widget build(BuildContext context) {
-    print('======strated from scratch=======');
+    // print('======strated from scratch=======');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,

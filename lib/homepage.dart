@@ -104,17 +104,17 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         connection = true;
       });
-      print('Connected to a Wi-Fi network');
+      // print('Connected to a Wi-Fi network');
     } else if (connectivityResult == ConnectivityResult.mobile) {
       setState(() {
         connection = true;
       });
-      print('Connected to a mobile network');
+      // print('Connected to a mobile network');
     } else {
       setState(() {
         connection = false;
       });
-      print('Not connected to any network');
+      // print('Not connected to any network');
     }
     return connection;
   }
@@ -126,21 +126,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            buildFloatingSearchBar(),
-            connection == false
-                ? const Center(
-                    child: Text('No internet connection',
-                        style:
-                            TextStyle(fontSize: 20, fontFamily: 'Montserrat')),
-                  )
-                : Container(
-                    margin: const EdgeInsets.only(top: 60),
-                    child: FutureBuilder<List>(
+    return SafeArea(
+      child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Stack(
+            children: [
+              connection == false
+                  ? const Center(
+                      child: Text('No internet connection',
+                          style: TextStyle(
+                              fontSize: 20, fontFamily: 'Montserrat')),
+                    )
+                  : FutureBuilder<List>(
                       future: getJson(),
                       builder: (context, snapshot) {
                         // print(countryCodeData.length);
@@ -152,58 +149,88 @@ class _MyHomePageState extends State<MyHomePage> {
                         } else if (snapshot.hasError) {
                           return const Text('Error...');
                         } else {
-                          return SafeArea(
-                            child: ListView.builder(
-                              itemCount: countryCodeData.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                if (shouldNotBeOnTheList
-                                    .contains(countryCodeData[index].entity)) {
-                                  return const SizedBox();
-                                } else {
-                                  if (searchQuery != '') {
-                                    searchQuery = searchQuery.toLowerCase();
-                                    if (countryCodeData[index]
-                                        .entity!
-                                        .toLowerCase()
-                                        .contains(searchQuery)) {
-                                      return listTile(
-                                        countryCodeData[index].entity,
-                                        countryCodeData[index].isoCode1 == null
-                                            ? ''
-                                            : countryCodeData[index]
-                                                .isoCode1!
-                                                .toLowerCase(),
-                                      );
-                                    } else {
+                          return CustomScrollView(
+                            slivers: [
+                              SliverAppBar(
+                                // pinned: true,
+                                // stretch: true,
+                                expandedHeight: 100,
+                                // snap: true,
+                                elevation: 10,
+                                // shape: ShapeBorder(),
+                                floating: true,
+                                flexibleSpace: FlexibleSpaceBar(
+                                    centerTitle: true,
+                                    title: const Text('World FactBook',
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            color: Colors.white,
+                                            fontFamily: 'Montserrat')),
+                                    background: Image.asset(
+                                      'images/worldglow.png',
+                                      fit: BoxFit.cover,
+                                    )),
+                                backgroundColor: Colors.black,
+                              ),
+                              SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                                    if (shouldNotBeOnTheList.contains(
+                                        countryCodeData[index].entity)) {
                                       return const SizedBox();
+                                    } else {
+                                      if (searchQuery != '') {
+                                        searchQuery = searchQuery.toLowerCase();
+                                        if (countryCodeData[index]
+                                            .entity!
+                                            .toLowerCase()
+                                            .contains(searchQuery)) {
+                                          return listTile(
+                                            index,
+                                            countryCodeData[index].entity,
+                                            countryCodeData[index].isoCode1 ==
+                                                    null
+                                                ? ''
+                                                : countryCodeData[index]
+                                                    .isoCode1!
+                                                    .toLowerCase(),
+                                          );
+                                        } else {
+                                          return const SizedBox();
+                                        }
+                                      } else {
+                                        return listTile(
+                                          index,
+                                          countryCodeData[index].entity,
+                                          countryCodeData[index].isoCode1 ==
+                                                  null
+                                              ? ''
+                                              : countryCodeData[index]
+                                                  .isoCode1!
+                                                  .toLowerCase(),
+                                        );
+                                      }
                                     }
-                                  } else {
-                                    return listTile(
-                                      countryCodeData[index].entity,
-                                      countryCodeData[index].isoCode1 == null
-                                          ? ''
-                                          : countryCodeData[index]
-                                              .isoCode1!
-                                              .toLowerCase(),
-                                    );
-                                  }
-                                }
-                              },
-                            ),
+                                  },
+                                  childCount: countryCodeData.length,
+                                ),
+                              ),
+                            ],
                           );
                         }
                       },
                     ),
-                  ),
-          ],
-        ),
-      ),
+              // buildFloatingSearchBar()
+            ],
+          )),
     );
   }
 
-  Container listTile(name, code) {
+  Container listTile(index, name, code) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+      margin: index == 0
+          ? const EdgeInsets.fromLTRB(10, 20, 10, 10)
+          : const EdgeInsets.fromLTRB(10, 0, 10, 10),
       height: 50,
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
